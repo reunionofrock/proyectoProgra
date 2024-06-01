@@ -231,16 +231,19 @@ public class Aperturac extends javax.swing.JFrame {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         String strDate = formatter.format(new Date());
         obj.put("FechaApertura", strDate);
+        obj.put("Bitacora", "");
         CrudFile crudFile = new CrudFile();
 
         JSONObject isExists = crudFile.searchInColumnByHeader("Datos de Usuario", "DatosUsuario.xlsx", "dpi", Nodpi);
         if (isExists != null && !isExists.toString().equals("{}")) {
             boolean isSaved = crudFile.CreateFile(obj, "Datos de Cuentas", "DatosCuentas.xlsx");
             if (isSaved) {
-                JOptionPane.showMessageDialog(null, "Registro Exitoso\n " + obj.toString());
+                JOptionPane.showMessageDialog(null, "Registro Exitoso\n "
+                        + obj.toString().replaceAll("\"", "").replace("{", "").replace("}", "") + "\n" + isExists.toString().replaceAll("\"", "").replace("{", "").replace("}", ""));
                 MontoinicialField.setText("");
                 NodpiField.setText("");
-                generateAccountNumber();
+                noCuenta = generateAccountNumber();
+                jLabel7.setText(noCuenta);
             } else {
                 JOptionPane.showMessageDialog(null, "Error al guardar");
             }

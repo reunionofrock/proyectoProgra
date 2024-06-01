@@ -55,7 +55,7 @@ public class CrudFile {
                     Cell cell = headerRow.createCell(cellIndex++);
                     cell.setCellValue(key);
                 }
-            }else{
+            } else {
                 // Obtener el último ID
                 int lastRowNum = sheet.getLastRowNum();
                 Row lastRow = sheet.getRow(lastRowNum);
@@ -81,11 +81,9 @@ public class CrudFile {
                 Cell cell = dataRow.createCell(cellIndex++);
                 cell.setCellValue(obj.get(key).toString());
             }
-            for (String key : obj.keySet()) {
-                Cell cell = dataRow.createCell(cellIndex);
-                cell.setCellValue(obj.get(key).toString());
-                sheet.autoSizeColumn(cellIndex); // Ajustar el ancho de la columna
-                cellIndex++;
+            // Iterar sobre las columnas para redimensionarlas
+            for (int i = 0; i < cellIndex; i++) {
+                sheet.autoSizeColumn(i);
             }
             // Escribir el archivo Excel
             try (FileOutputStream fileOut = new FileOutputStream(fileName)) {

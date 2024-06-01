@@ -8,6 +8,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Random;
+
 import javax.swing.JOptionPane;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -37,6 +41,7 @@ public class Aperturac extends javax.swing.JFrame {
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated
+    // <editor-fold defaultstate="collapsed" desc="Generated
     // Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -46,15 +51,16 @@ public class Aperturac extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        TipodecuentaField = new javax.swing.JComboBox<>();
+        TipodecuentaField = new javax.swing.JComboBox<String>();
         NodpiField = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        NoCuentaField = new javax.swing.JTextField();
         MontoinicialField = new javax.swing.JTextField();
         Save = new javax.swing.JButton();
+        jLabel7 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
+        noCuenta = generateAccountNumber();
+        jLabel7.setText(noCuenta);
         jPanel1.setBackground(new java.awt.Color(0, 204, 204));
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Apertura Cliente"));
 
@@ -75,8 +81,8 @@ public class Aperturac extends javax.swing.JFrame {
 
         jLabel4.setText("NO. DPI");
 
-        TipodecuentaField
-                .setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "MONETARIA", "AHORRO", " ", " " }));
+        TipodecuentaField.setModel(
+                new javax.swing.DefaultComboBoxModel<String>(new String[] { "MONETARIA", "AHORRO", " ", " " }));
         TipodecuentaField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 TipodecuentaFieldActionPerformed(evt);
@@ -98,6 +104,8 @@ public class Aperturac extends javax.swing.JFrame {
                 SaveActionPerformed(evt);
             }
         });
+
+        jLabel7.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -133,10 +141,10 @@ public class Aperturac extends javax.swing.JFrame {
                                                                 javax.swing.GroupLayout.Alignment.LEADING))
                                                 .addGap(65, 65, 65)
                                                 .addComponent(jLabel5)
-                                                .addGap(18, 18, 18)
-                                                .addComponent(NoCuentaField, javax.swing.GroupLayout.PREFERRED_SIZE,
-                                                        195, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addContainerGap(91, Short.MAX_VALUE))
+                                                .addGap(30, 30, 30)
+                                                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 101,
+                                                        javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addContainerGap(173, Short.MAX_VALUE))
                         .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGap(48, 48, 48)
                                 .addComponent(jButton1)
@@ -149,16 +157,14 @@ public class Aperturac extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addComponent(jLabel1)
-                                .addGap(68, 68, 68)
+                                .addGap(65, 65, 65)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(jLabel2)
                                         .addComponent(jLabel5)
-                                        .addComponent(NoCuentaField, javax.swing.GroupLayout.PREFERRED_SIZE,
-                                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                                javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(MontoinicialField, javax.swing.GroupLayout.PREFERRED_SIZE,
                                                 javax.swing.GroupLayout.DEFAULT_SIZE,
-                                                javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel7))
                                 .addGap(103, 103, 103)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(jLabel4)
@@ -173,7 +179,7 @@ public class Aperturac extends javax.swing.JFrame {
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(jButton1)
                                         .addComponent(Save))
-                                .addContainerGap(212, Short.MAX_VALUE)));
+                                .addContainerGap(215, Short.MAX_VALUE)));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -189,6 +195,16 @@ public class Aperturac extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public String generateAccountNumber() {
+        Random random = new Random();
+        StringBuilder accountNumber = new StringBuilder();
+        for (int i = 0; i < 10; i++) { // Generar un número de cuenta de 10 dígitos
+            int digit = random.nextInt(10); // Generar un dígito aleatorio entre 0 y 9
+            accountNumber.append(digit);
+        }
+        return accountNumber.toString();
+    }
+
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButton1ActionPerformed
         Panel_control pc = new Panel_control();
         this.setVisible(false);
@@ -203,24 +219,32 @@ public class Aperturac extends javax.swing.JFrame {
     private void SaveActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_SaveActionPerformed
         // TODO add your handling code here:
 
-        String NoCuenta = NoCuentaField.getText();
+        // String NoCuenta = NoCuentaField.getText();
         String Montoinicial = MontoinicialField.getText();
         String Nodpi = NodpiField.getText();
         String Tipodecuenta = TipodecuentaField.getSelectedItem().toString();
         JSONObject obj = new JSONObject();
-        obj.put("NoCuenta", NoCuenta);
+        obj.put("NoCuenta", noCuenta);
         obj.put("Montoinicial", Montoinicial);
         obj.put("Nodpi", Nodpi);
-        obj.put("Tipodecuenta", Tipodecuenta);
-        
+        obj.put("Tipodecuenta", Tipodecuenta.equals("MONETARIA") ? "1" : "2");
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        String strDate = formatter.format(new Date());
+        obj.put("FechaApertura", strDate);
         CrudFile crudFile = new CrudFile();
 
-        boolean isSaved = crudFile.CreateFile(obj, "Datos de Cuentas", "DatosCuentas.xlsx");
-        if(isSaved){
-            JOptionPane.showMessageDialog(null, "Registro Exitoso");
-        }else{
-            JOptionPane.showMessageDialog(null, "Error al guardar");
+        JSONObject isExists = crudFile.searchInColumnByHeader("Datos de Usuario", "DatosUsuario.xlsx", "dpi", Nodpi);
+        if (isExists != null && !isExists.toString().equals("{}")) {
+            boolean isSaved = crudFile.CreateFile(obj, "Datos de Cuentas", "DatosCuentas.xlsx");
+            if (isSaved) {
+                JOptionPane.showMessageDialog(null, "Registro Exitoso\n " + obj.toString());
+            } else {
+                JOptionPane.showMessageDialog(null, "Error al guardar");
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Cliente no existe, favor registrar");
         }
+
     }
 
     private void TipodecuentaFieldActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_TipodecuentaFieldActionPerformed
@@ -268,7 +292,6 @@ public class Aperturac extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField MontoinicialField;
-    private javax.swing.JTextField NoCuentaField;
     private javax.swing.JTextField NodpiField;
     private javax.swing.JButton Save;
     private javax.swing.JComboBox<String> TipodecuentaField;
@@ -278,6 +301,8 @@ public class Aperturac extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
+    private String noCuenta = "";
     // End of variables declaration//GEN-END:variables
 }

@@ -168,7 +168,7 @@ public class Estado_Cuenta extends javax.swing.JFrame {
                             System.out.println(currentCellBalance.getAddress().formatAsString());
                             System.out.println(currentCellBalance.getStringCellValue());
                             // Se agrega un comentario para la bitacora de datos
-                            String previousComments = row.getCell(6).getRichStringCellValue().toString();
+                            //String previousComments = row.getCell(7).getRichStringCellValue().toString();
                             FileOutputStream fileOut = new FileOutputStream(String.format("%s.txt",NodeCuenta));
                             File accountDetails = new File(String.format("%s.txt",NodeCuenta));
                             if (accountDetails.exists() && accountDetails.length() > 0) {
@@ -176,8 +176,8 @@ public class Estado_Cuenta extends javax.swing.JFrame {
                             } else {
                                 accountDetails.createNewFile();
                             }
-                            fileOut = new FileOutputStream(String.format("%s.txt",NodeCuenta));
-                            fileOut.write((previousComments + ".\nBalance real: "+ currentCellBalance.getStringCellValue()).getBytes());
+                            fileOut = new FileOutputStream(String.format("%s.txt",NodeCuenta), true);
+                            fileOut.write((".\nBalance real: " + currentCellBalance.getStringCellValue()).getBytes());
                             fileOut.close();
                             JOptionPane.showMessageDialog(null, "Archivo Excel creado exitosamente.");
                         
@@ -201,7 +201,7 @@ public class Estado_Cuenta extends javax.swing.JFrame {
                             
              
                             System.out.println("Cuenta actualizada");
-                            System.out.println(currentCellBalance.getNumericCellValue());
+                            //System.out.println(currentCellBalance.getNumericCellValue());
                             FileOutputStream fileOut = new FileOutputStream("DatosCuentas.xlsx");
                             workbook.write(fileOut);
                             workbook.close();

@@ -238,6 +238,9 @@ public class Aperturac extends javax.swing.JFrame {
             boolean isSaved = crudFile.CreateFile(obj, "Datos de Cuentas", "DatosCuentas.xlsx");
             if (isSaved) {
                 JOptionPane.showMessageDialog(null, "Registro Exitoso\n " + obj.toString());
+                MontoinicialField.setText("");
+                NodpiField.setText("");
+                generateAccountNumber();
             } else {
                 JOptionPane.showMessageDialog(null, "Error al guardar");
             }

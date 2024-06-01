@@ -148,4 +148,49 @@ public class CrudFile {
         return result;
     }
 
+    public Row findRow(Sheet sheet, String cellContent) {
+        for (Row row : sheet) {
+            Cell cell = row.getCell(7); // Asume que quieres buscar en la primera columna
+            if (cell.getCellType() == CellType.STRING && cell.getRichStringCellValue().getString().trim().equals(cellContent)) {
+                return row;
+            }
+        }
+        return null;
+    }
+
+    public boolean updateRow(String fileName, String sheetName, String searchValue, JSONObject newData) {
+        boolean result = false;
+        try {
+            FileInputStream fis = new FileInputStream(new File(fileName));
+            Workbook workbook = new XSSFWorkbook(fis);
+            Sheet sheet = workbook.getSheet(sheetName);
+            Row row = findRow(sheet, searchValue);
+            if (row != null) {
+                for (String key : newData.keySet()) {
+                    Cell cell = row.createCell(getColumnIndex(sheet, key)); // Asume que tienes un método getColumnIndex que obtiene el índice de una columna por su encabezado
+                    cell.setCellValue(newData.getString(key));
+                    result = true;
+                }
+                fis.close();
+                FileOutputStream fos = new FileOutputStream(new File(fileName));
+                workbook.write(fos);
+                fos.close();
+            }
+            workbook.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public int getColumnIndex(Sheet sheet, String header) {
+        Row headerRow = sheet.getRow(0); // Asume que la primera fila contiene los encabezados
+        for (Cell cell : headerRow) {
+            if (cell.getCellType() == CellType.STRING && cell.getStringCellValue().trim().equals(header)) {
+                return cell.getColumnIndex();
+            }
+        }
+        return -1; // Devuelve -1 si no se encuentra el encabezado
+    }
+
 }

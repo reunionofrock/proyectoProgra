@@ -231,7 +231,6 @@ public class Aperturac extends javax.swing.JFrame {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         String strDate = formatter.format(new Date());
         obj.put("FechaApertura", strDate);
-        obj.put("Bitacora", "");
         CrudFile crudFile = new CrudFile();
 
         JSONObject isExists = crudFile.searchInColumnByHeader("Datos de Usuario", "DatosUsuario.xlsx", "dpi", Nodpi);

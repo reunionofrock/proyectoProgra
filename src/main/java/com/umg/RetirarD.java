@@ -198,13 +198,13 @@ public class RetirarD extends javax.swing.JFrame {
                                 Cell currentCellBalance = sheet.getRow(currentCell.getRowIndex()).getCell(3);
                                 System.out.println(currentCellBalance.getAddress().formatAsString());
                                 System.out.println(currentCellBalance.getStringCellValue());
-                                if(Double.valueOf(MontoRetirar) > Double.valueOf(currentCellBalance.getNumericCellValue())){
+                                if(Double.valueOf(MontoRetirar) > Double.valueOf(currentCellBalance.getStringCellValue())){
                                     throw new ZeroException();
                                 }
                                 double newBalance = Double.valueOf(currentCellBalance.getStringCellValue()) - Double.valueOf(MontoRetirar);
                                 currentCellBalance.setAsActiveCell();
                                 currentCellBalance.setBlank();
-                                currentCellBalance.setCellValue(newBalance);
+                                currentCellBalance.setCellValue(String.valueOf(newBalance));
                                 System.out.println("Cuenta actualizada");
                                 System.out.println(currentCellBalance.getStringCellValue());
                                 // Se agrega un comentario para la bitacora de datos

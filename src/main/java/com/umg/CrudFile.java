@@ -9,8 +9,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JOptionPane;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -25,6 +29,54 @@ public class CrudFile {
 
     public CrudFile() {
 
+    }
+
+    public JSONObject searchInColumnByHeader(String sheetName, String fileName, String headerValue,
+            String searchValue) {
+        JSONObject json = new JSONObject();
+        try {
+            File file = new File(fileName);
+            if (file.exists() && file.length() > 0) {
+                try (FileInputStream fis = new FileInputStream(file);
+                        Workbook workbook = new XSSFWorkbook(fis)) {
+                    Sheet sheet = workbook.getSheet(sheetName);
+                    if (sheet != null) {
+                        Row headerRow = sheet.getRow(0); // Obtener la fila de encabezado
+                        int columnIndex = -1;
+                        if (headerRow != null) {
+                            for (Cell cell : headerRow) {
+                                if (cell.getStringCellValue().equals(headerValue)) {
+                                    columnIndex = cell.getColumnIndex(); // Obtener el índice de la columna
+                                    break;
+                                }
+                            }
+                        }
+                        if (columnIndex != -1) {
+                            for (Row row : sheet) {
+                                Cell cell = row.getCell(columnIndex);
+                                if (cell != null && cell.getCellType() == CellType.STRING
+                                        && cell.getStringCellValue().equals(searchValue)) {
+                                    // Valor encontrado, devolver toda la fila como JSONObject
+                                    Row headerRowJson = sheet.getRow(0); // Obtener la fila de encabezado
+                                    for (Cell cellInRow : row) {
+                                        String header = headerRowJson.getCell(cellInRow.getColumnIndex())
+                                                .getStringCellValue();
+                                        String value = cellInRow.toString();
+                                        json.put(header, value);
+                                    }
+                                    return json;
+                                }
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+        }
+        return json; // Valor no encontrado
     }
 
     @SuppressWarnings("resource")

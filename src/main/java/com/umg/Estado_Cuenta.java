@@ -4,6 +4,21 @@
  */
 package com.umg;
 
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.swing.JOptionPane;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 /**
  *
  * @author MAR ACEITUNO
@@ -102,6 +117,15 @@ public class Estado_Cuenta extends javax.swing.JFrame {
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                GetAccountResume(evt);
+            }
+
+            
+            }
+        );
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -113,6 +137,93 @@ public class Estado_Cuenta extends javax.swing.JFrame {
           String N_Cuenta = N_CuentaField.getText();
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void GetAccountResume(ActionEvent evt) {
+        String NodeCuenta = N_CuentaField.getText();
+       try {
+            Workbook workbook;
+            File file = new File("DatosCuentas.xlsx");
+            if (file.exists() && file.length() > 0) {
+                workbook = new XSSFWorkbook(new FileInputStream(file));
+            } else {
+                workbook = new XSSFWorkbook();
+            }
+            Sheet sheet = workbook.getSheet("Datos de cuentas");
+            // Por cada fila, se obtiene la cuarta columna(indice 3), correspondiente al ID de la cuenta
+            sheet.forEach((row) -> {
+                Cell currentCell = row.getCell(3);
+                CellType cellType = currentCell.getCellType();
+                double NoCuenta = 0;
+                // el switch ayuda a manejar errores por la primera fila de encabezados
+                switch (cellType) {
+                    case CellType.STRING -> {
+                        try {
+                            NoCuenta = Double.valueOf(currentCell.getStringCellValue());
+                            System.out.println("Se encontraron los numeros de cuenta(string): " + currentCell.getStringCellValue());
+                            if(Double.valueOf(NodeCuenta) == NoCuenta){
+                                System.out.println("Se encontro coincidencia con una cuenta");
+                                System.out.println("Indice de fila");
+                                System.out.println(currentCell.getRowIndex());
+                                Cell currentCellBalance = sheet.getRow(currentCell.getRowIndex()).getCell(2);
+                                System.out.println(currentCellBalance.getAddress().formatAsString());
+                                System.out.println(currentCellBalance.getNumericCellValue());
+                                
+                                FileOutputStream fileOut = new FileOutputStream("DatosCuentas.xlsx");
+                                File accountDetails = new File(String.format("%s.txt",NodeCuenta));
+                                if (accountDetails.exists() && accountDetails.length() > 0) {
+                                    //file.createNewFile();
+                                } else {
+                                    accountDetails.createNewFile();
+                                }
+                                fileOut = new FileOutputStream(String.format("%s.txt",NodeCuenta));
+                                fileOut.write(("\nBalance real: " + currentCellBalance).getBytes(), (int)accountDetails.length(), ("\nBalance real: " + currentCellBalance).getBytes().length);
+                                fileOut.close();
+                                JOptionPane.showMessageDialog(null, "Archivo generado exitosamente.");
+                            
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Continuando se encontro una fila que no puede ser convertida a numero");
+                            System.out.println(e.getMessage());
+                        }
+                    }
+                    case CellType.NUMERIC -> {
+                        try {
+                            NoCuenta = Double.valueOf(currentCell.getStringCellValue());
+                            System.out.println("Se encontraron los numeros de cuenta(string): " + currentCell.getStringCellValue());
+                            if(Double.valueOf(NodeCuenta) == NoCuenta){
+                                System.out.println("Se encontro coincidencia con una cuenta");
+                                System.out.println("Indice de fila");
+                                System.out.println(currentCell.getRowIndex());
+                                Cell currentCellBalance = sheet.getRow(currentCell.getRowIndex()).getCell(2);
+                                System.out.println(currentCellBalance.getAddress().formatAsString());
+                                System.out.println(currentCellBalance.getNumericCellValue());
+                                String previousComments = row.getCell(5).getRichStringCellValue().toString();
+                                FileOutputStream fileOut = new FileOutputStream("DatosCuentas.xlsx");
+                                File accountDetails = new File(String.format("%s.txt",NodeCuenta));
+                                if (accountDetails.exists() && accountDetails.length() > 0) {
+                                    //file.createNewFile();
+                                } else {
+                                    accountDetails.createNewFile();
+                                }
+                                fileOut = new FileOutputStream(String.format("%s.txt",NodeCuenta), false);
+                                fileOut.write((previousComments + "\nBalance real: " + currentCellBalance).getBytes(), (int)accountDetails.length(), ("\nBalance real: " + currentCellBalance).getBytes().length);
+                                fileOut.close();
+                                JOptionPane.showMessageDialog(null, "Archivo generado exitosamente.");
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Continuando se encontro una fila que no puede ser convertida a string");
+                            System.out.println(e.getMessage());
+                        }
+                    }
+                    default -> throw new NumberFormatException();
+                }
+               
+            }
+            );
+        } catch (Exception e) {
+            System.out.println("Error en la creacion o lectura del archivo:");
+            System.out.println(e.getMessage());
+        }
+    }
     /**
      * @param args the command line arguments
      */

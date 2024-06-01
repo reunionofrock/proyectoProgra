@@ -4,6 +4,22 @@
  */
 package com.umg;
 
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.swing.JOptionPane;
+
+import org.apache.commons.math3.exception.ZeroException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 /**
  *
  * @author MAR ACEITUNO
@@ -123,7 +139,15 @@ public class RetirarD extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
+// Accion de retirar dinero se agrega como listener de evento
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                WithdrawFromAccount(evt);
+            }
 
+           
+            }
+        );
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -137,6 +161,129 @@ public class RetirarD extends javax.swing.JFrame {
           String Monto = MontoField.getText();
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void WithdrawFromAccount(ActionEvent evt) {
+        String NodeCuenta = NumCuentaField.getText();
+        //String Nombre = NombreeField.getText();
+        String MontoRetirar = MontoField.getText();
+        System.out.println(NodeCuenta);
+        //System.out.println(Nombre);
+        System.out.println(MontoRetirar);
+
+        // metodo provisional para insertar en el archivo
+        try {
+
+            Workbook workbook;
+            File file = new File("DatosCuentas.xlsx");
+            if (file.exists() && file.length() > 0) {
+                workbook = new XSSFWorkbook(new FileInputStream(file));
+            } else {
+                workbook = new XSSFWorkbook();
+            }
+            Sheet sheet = workbook.getSheet("Datos de cuentas");
+            // Por cada fila, se obtiene la cuarta columna(indice 3), correspondiente al ID de la cuenta
+            sheet.forEach((row) -> {
+                Cell currentCell = row.getCell(4);
+                CellType cellType = currentCell.getCellType();
+                double NoCuenta = 0;
+                // el switch ayuda a manejar errores por la primera fila de encabezados
+                switch (cellType) {
+                    case CellType.STRING -> {
+                        try {
+                            NoCuenta = Double.valueOf(currentCell.getStringCellValue());
+                            System.out.println("Se encontraron los numeros de cuenta(string): " + currentCell.getStringCellValue());
+                            if(Double.valueOf(NodeCuenta) == NoCuenta){
+                                System.out.println("Se encontro coincidencia con una cuenta");
+                                System.out.println("Indice de fila");
+                                System.out.println(currentCell.getRowIndex());
+                                Cell currentCellBalance = sheet.getRow(currentCell.getRowIndex()).getCell(3);
+                                System.out.println(currentCellBalance.getAddress().formatAsString());
+                                System.out.println(currentCellBalance.getStringCellValue());
+                                if(Double.valueOf(MontoRetirar) > Double.valueOf(currentCellBalance.getNumericCellValue())){
+                                    throw new ZeroException();
+                                }
+                                double newBalance = Double.valueOf(currentCellBalance.getStringCellValue()) - Double.valueOf(MontoRetirar);
+                                currentCellBalance.setAsActiveCell();
+                                currentCellBalance.setBlank();
+                                currentCellBalance.setCellValue(newBalance);
+                                System.out.println("Cuenta actualizada");
+                                System.out.println(currentCellBalance.getStringCellValue());
+                                // Se agrega un comentario para la bitacora de datos
+                                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+                                String strDate = formatter.format(new Date());
+                               // String previousComments = row.getCell(7).getRichStringCellValue().toString();
+                               // row.createCell(5).setCellValue(previousComments + ".Se hace retiro de cuenta por Q." + MontoRetirar + " en fecha: " + strDate);
+                                FileOutputStream fileOut = new FileOutputStream("DatosCuentas.xlsx");
+                                workbook.write(fileOut);
+                                workbook.close();
+
+                                File accountDetails = new File(String.format("%s.txt",NodeCuenta));
+                                if (accountDetails.exists() && accountDetails.length() > 0) {
+                                    file.createNewFile();
+                                } else {
+                                    accountDetails.createNewFile();
+                                }
+                                fileOut = new FileOutputStream(String.format("%s.txt",NodeCuenta), true);
+                                fileOut.write((".Se hace retiro de cuenta por Q." + MontoRetirar + " en fecha: " + strDate).getBytes());
+                                fileOut.close();
+                                JOptionPane.showMessageDialog(null, "Archivo Excel creado exitosamente.");
+                            }
+                        } catch (ZeroException e) {
+                            JOptionPane.showMessageDialog(null, "El monto a retirar es mayor al monto disponible");
+                            System.out.println(e.getMessage());
+                        } catch (Exception e) {
+                            System.out.println("Continuando se encontro una fila que no puede ser convertida a numero");
+                            System.out.println(e.getMessage());
+                        }
+                    }
+                    case CellType.NUMERIC -> {
+                        try {
+                            NoCuenta = Double.valueOf(currentCell.getStringCellValue());
+                            System.out.println("Se encontraron los numeros de cuenta(string): " + currentCell.getStringCellValue());
+                            if(Double.valueOf(NodeCuenta) == NoCuenta){
+                                System.out.println("Se encontro coincidencia con una cuenta");
+                                System.out.println("Indice de fila");
+                                System.out.println(currentCell.getRowIndex());
+                                Cell currentCellBalance = sheet.getRow(currentCell.getRowIndex()).getCell(2);
+                                System.out.println(currentCellBalance.getAddress().formatAsString());
+                                System.out.println(currentCellBalance.getStringCellValue());
+                                if(Double.valueOf(MontoRetirar) > Double.valueOf(currentCellBalance.getStringCellValue())){
+                                    throw new ZeroException();
+                                }
+                                double newBalance = Double.valueOf(currentCellBalance.getStringCellValue()) - Double.valueOf(MontoRetirar);
+                                currentCellBalance.setAsActiveCell();
+                                currentCellBalance.setBlank();
+                                currentCellBalance.setCellValue(newBalance);
+                                System.out.println("Cuenta actualizada");
+                                System.out.println(currentCellBalance.getStringCellValue());
+                                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+                                String strDate = formatter.format(new Date());
+                                String previousComments = row.getCell(5).getRichStringCellValue().toString();
+                                row.createCell(5).setCellValue(previousComments + ".Se hace retiro de cuenta por Q." + MontoRetirar + " en fecha: " + strDate);
+                                FileOutputStream fileOut = new FileOutputStream("DatosCuentas.xlsx");
+                                workbook.write(fileOut);
+                                workbook.close();
+                                JOptionPane.showMessageDialog(null, "Archivo Excel creado exitosamente.");
+                            }
+                        } 
+                        catch (ZeroException e) {
+                            JOptionPane.showMessageDialog(null, "El monto a retirar es mayor al monto disponible");
+                            System.out.println(e.getMessage());
+                        }catch (Exception e) {
+                            System.out.println("Continuando se encontro una fila que no puede ser convertida a string");
+                            System.out.println(e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
+                    default -> throw new NumberFormatException();
+                }
+               
+            }
+            );
+        } catch (Exception e) {
+            System.out.println("Error en la creacion o lectura del archivo:");
+            System.out.println(e.getMessage());
+        }
+    }
     /**
      * @param args the command line arguments
      */

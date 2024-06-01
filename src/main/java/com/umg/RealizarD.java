@@ -180,7 +180,7 @@ public class RealizarD extends javax.swing.JFrame {
             Sheet sheet = workbook.getSheet("Datos de cuentas");
             // Por cada fila, se obtiene la cuarta columna(indice 3), correspondiente al ID de la cuenta
             sheet.forEach((row) -> {
-                Cell currentCell = row.getCell(3);
+                Cell currentCell = row.getCell(4);
                 CellType cellType = currentCell.getCellType();
                 double NoCuenta = 0;
                 // el switch ayuda a manejar errores por la primera fila de encabezados
@@ -193,7 +193,7 @@ public class RealizarD extends javax.swing.JFrame {
                                 System.out.println("Se encontro coincidencia con una cuenta");
                                 System.out.println("Indice de fila");
                                 System.out.println(currentCell.getRowIndex());
-                                Cell currentCellBalance = sheet.getRow(currentCell.getRowIndex()).getCell(2);
+                                Cell currentCellBalance = sheet.getRow(currentCell.getRowIndex()).getCell(3);
                                 System.out.println(currentCellBalance.getAddress().formatAsString());
                                 System.out.println(currentCellBalance.getStringCellValue());
                                 double newBalance = Double.valueOf(currentCellBalance.getStringCellValue()) + Double.valueOf(MontoDepositar);
@@ -205,20 +205,20 @@ public class RealizarD extends javax.swing.JFrame {
                                 // Se agrega un comentario para la bitacora de datos
                                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
                                 String strDate = formatter.format(new Date());
-                                String previousComments = row.getCell(5).getRichStringCellValue().toString();
-                                row.createCell(5).setCellValue(previousComments + ".Se hace deposito de cuenta por Q." + MontoDepositar + " en fecha: " + strDate);
-                                FileOutputStream fileOut = new FileOutputStream("DatosCuentas.xlsx");
+                                //String previousComments = row.getCell(7).getRichStringCellValue().toString();
+                                //row.createCell(5).setCellValue(previousComments + ".Se hace deposito de cuenta por Q." + MontoDepositar + " en fecha: " + strDate);
+                               FileOutputStream fileOut = new FileOutputStream("DatosCuentas.xlsx");
                                 workbook.write(fileOut);
                                 workbook.close();
                                
                                 File accountDetails = new File(String.format("%s.txt",NodeCuenta));
                                 if (accountDetails.exists() && accountDetails.length() > 0) {
-                                    //file.createNewFile();
+                                    file.createNewFile();
                                 } else {
                                     accountDetails.createNewFile();
                                 }
-                                fileOut = new FileOutputStream(String.format("%s.txt",NodeCuenta));
-                                fileOut.write((previousComments + ".Se hace deposito de cuenta por Q." + MontoDepositar + " en fecha: " + strDate).getBytes());
+                                fileOut = new FileOutputStream(String.format("%s.txt",NodeCuenta), true);
+                                fileOut.write((".Se hace deposito de cuenta por Q." + MontoDepositar + " en fecha: " + strDate).getBytes());
                                 fileOut.close();
                                 JOptionPane.showMessageDialog(null, "Archivo Excel creado exitosamente.");
                             

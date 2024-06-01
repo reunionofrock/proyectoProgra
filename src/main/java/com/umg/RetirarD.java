@@ -182,7 +182,7 @@ public class RetirarD extends javax.swing.JFrame {
             Sheet sheet = workbook.getSheet("Datos de cuentas");
             // Por cada fila, se obtiene la cuarta columna(indice 3), correspondiente al ID de la cuenta
             sheet.forEach((row) -> {
-                Cell currentCell = row.getCell(3);
+                Cell currentCell = row.getCell(4);
                 CellType cellType = currentCell.getCellType();
                 double NoCuenta = 0;
                 // el switch ayuda a manejar errores por la primera fila de encabezados
@@ -195,26 +195,36 @@ public class RetirarD extends javax.swing.JFrame {
                                 System.out.println("Se encontro coincidencia con una cuenta");
                                 System.out.println("Indice de fila");
                                 System.out.println(currentCell.getRowIndex());
-                                Cell currentCellBalance = sheet.getRow(currentCell.getRowIndex()).getCell(2);
+                                Cell currentCellBalance = sheet.getRow(currentCell.getRowIndex()).getCell(3);
                                 System.out.println(currentCellBalance.getAddress().formatAsString());
-                                System.out.println(currentCellBalance.getNumericCellValue());
+                                System.out.println(currentCellBalance.getStringCellValue());
                                 if(Double.valueOf(MontoRetirar) > Double.valueOf(currentCellBalance.getNumericCellValue())){
                                     throw new ZeroException();
                                 }
-                                double newBalance = Double.valueOf(currentCellBalance.getNumericCellValue()) - Double.valueOf(MontoRetirar);
+                                double newBalance = Double.valueOf(currentCellBalance.getStringCellValue()) - Double.valueOf(MontoRetirar);
                                 currentCellBalance.setAsActiveCell();
                                 currentCellBalance.setBlank();
                                 currentCellBalance.setCellValue(newBalance);
                                 System.out.println("Cuenta actualizada");
-                                System.out.println(currentCellBalance.getNumericCellValue());
+                                System.out.println(currentCellBalance.getStringCellValue());
                                 // Se agrega un comentario para la bitacora de datos
                                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
                                 String strDate = formatter.format(new Date());
-                                String previousComments = row.getCell(5).getRichStringCellValue().toString();
-                                row.createCell(5).setCellValue(previousComments + ".Se hace retiro de cuenta por Q." + MontoRetirar + " en fecha: " + strDate);
+                               // String previousComments = row.getCell(7).getRichStringCellValue().toString();
+                               // row.createCell(5).setCellValue(previousComments + ".Se hace retiro de cuenta por Q." + MontoRetirar + " en fecha: " + strDate);
                                 FileOutputStream fileOut = new FileOutputStream("DatosCuentas.xlsx");
                                 workbook.write(fileOut);
                                 workbook.close();
+
+                                File accountDetails = new File(String.format("%s.txt",NodeCuenta));
+                                if (accountDetails.exists() && accountDetails.length() > 0) {
+                                    file.createNewFile();
+                                } else {
+                                    accountDetails.createNewFile();
+                                }
+                                fileOut = new FileOutputStream(String.format("%s.txt",NodeCuenta), true);
+                                fileOut.write((".Se hace retiro de cuenta por Q." + MontoRetirar + " en fecha: " + strDate).getBytes());
+                                fileOut.close();
                                 JOptionPane.showMessageDialog(null, "Archivo Excel creado exitosamente.");
                             }
                         } catch (ZeroException e) {
@@ -236,7 +246,7 @@ public class RetirarD extends javax.swing.JFrame {
                                 Cell currentCellBalance = sheet.getRow(currentCell.getRowIndex()).getCell(2);
                                 System.out.println(currentCellBalance.getAddress().formatAsString());
                                 System.out.println(currentCellBalance.getStringCellValue());
-                                if(Double.valueOf(MontoRetirar) > Double.valueOf(currentCellBalance.getNumericCellValue())){
+                                if(Double.valueOf(MontoRetirar) > Double.valueOf(currentCellBalance.getStringCellValue())){
                                     throw new ZeroException();
                                 }
                                 double newBalance = Double.valueOf(currentCellBalance.getStringCellValue()) - Double.valueOf(MontoRetirar);
@@ -244,7 +254,7 @@ public class RetirarD extends javax.swing.JFrame {
                                 currentCellBalance.setBlank();
                                 currentCellBalance.setCellValue(newBalance);
                                 System.out.println("Cuenta actualizada");
-                                System.out.println(currentCellBalance.getNumericCellValue());
+                                System.out.println(currentCellBalance.getStringCellValue());
                                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
                                 String strDate = formatter.format(new Date());
                                 String previousComments = row.getCell(5).getRichStringCellValue().toString();
@@ -261,6 +271,7 @@ public class RetirarD extends javax.swing.JFrame {
                         }catch (Exception e) {
                             System.out.println("Continuando se encontro una fila que no puede ser convertida a string");
                             System.out.println(e.getMessage());
+                            e.printStackTrace();
                         }
                     }
                     default -> throw new NumberFormatException();
